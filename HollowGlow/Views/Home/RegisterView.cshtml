@@ -1,0 +1,39 @@
+﻿@model HollowGlow.Models.UserModel
+@{
+    ViewBag.Title = "Окно регистрации";
+    Layout = null;
+}
+
+
+<head>
+    <link rel="stylesheet" href="~/css/login.css" media="screen">
+</head>
+<body>
+    <div class="background">
+        <img src="~/images/bgzelda.jpg" />
+    </div>
+    <form asp-action="RegisterEnter" asp-controller="home">
+
+        <h1 class="font_zelda"> Register! </h1>
+
+        <label for="login"> Login </label>
+        <input type="text" asp-for="Login" placeholder="Login" id="username">
+
+        <label for="username"> E-mail</label>
+        <input type="email" asp-for="Email" placeholder="Email" id="username">
+
+        <label for="password"> Password</label>
+        <input type="password" asp-for="Password" placeholder="Password" id="password">
+
+        <div class="form-group">
+            <button type="submit"> Register</button>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert">
+                @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+            </div>
+        }
+    </form>
+</body>

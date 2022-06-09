@@ -1,0 +1,49 @@
+﻿@model IEnumerable<HollowGlow.Models.UpgradesShopModel>
+@{
+    ViewBag.Title = "Окно покупки";
+}
+
+
+<script type="text/javascript">
+
+    function update_id(idItem) {
+        document.cookie = "idItem=" + idItem+ "; path=/";
+    }
+
+</script>
+<body style="background: url(/images/shop_bg.jpg) no-repeat center center fixed; background-size: cover;">
+
+    <div class="card">
+        <p>Your Mine Lvl: @ViewBag.MinerLvl </p>
+        <p>Your Castle Lvl: @ViewBag.MainBuildingLvl </p>
+        <p>Your Defense Lvl: @ViewBag.DefenseLvl </p>
+    </div>
+    @foreach (var item in Model) //Type = Mine Lvl = 1
+        //MinerLvl = 1
+    {
+        if (!((ViewBag.MinerLvl >= item.Lvl) && (item.Type == "Mine")) && !((ViewBag.MainBuildingLvl >= item.Lvl) && (item.Type == "Castle")) 
+            && !((ViewBag.DefenseLvl >= item.Lvl) && (item.Type == "Defense")))
+        {
+         
+            <div class="card_shop">
+                <h1> @item.Type - @item.Lvl ID: @item.Id</h1>
+                <p> Cost: @item.Cost</p>
+                <img class="image_for_shop" src=@item.Image />
+                <form asp-action=@item.Type asp-controller="main">
+                    <div class="form-group">
+                        <button name="itemId" value="@item.Id" onclick="update_id(@item.Id)" otype="submit"> Buy </button>
+                    </div>
+
+
+                    @if (!ViewData.ModelState.IsValid && item.Id == ViewBag.BadId)
+                    {
+                        <div class="alert alert">
+                            @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+                        </div>
+                    }
+                </form>
+            </div>
+        }
+    }
+
+</body>

@@ -1,0 +1,17 @@
+﻿@model IEnumerable<HollowGlow.Models.BlockModel>
+@{
+    ViewBag.Title = "Все блокчейны";
+
+}
+<div class="card_block">
+    
+        @foreach (var item in Model)
+        {
+            <p> ID: @item.Id</p>
+            <p> Data: @item.Data </p>
+            <p> Timestamp: @item.Timestamp</p>
+            <p> Nonce: @item.Nonce </p>
+            <p> Owner: @item.UserId </p>
+            <p> Hash: @item.Hash </p>
+        }
+</div>

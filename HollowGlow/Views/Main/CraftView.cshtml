@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Окно крафта";
+}
+
+<body style="background: url(/images/craft_bg.jpg) no-repeat center center fixed; background-size: cover;">
+
+
+    <div class="card">
+        <div class="text-center">
+            <h1 class="display-4">Here you can craft new items </h1>
+
+            <form asp-action="Craft" asp-controller="main">
+                <div class="form-group">
+                    <button name="itemId" type="submit"> Craft new item </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
