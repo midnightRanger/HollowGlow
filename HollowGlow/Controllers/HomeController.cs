@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using HollowGlow.blockchain;
+using Microsoft.EntityFrameworkCore;
 
 namespace HollowGlow.Controllers
 {
@@ -56,6 +57,9 @@ namespace HollowGlow.Controllers
             {
                 user.Role = 0; //Standard 
                 user.Coins = 0;
+
+                
+
                 db.Users.Add(user);
 
                 await db.SaveChangesAsync();
@@ -76,52 +80,34 @@ namespace HollowGlow.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> LoginEnter(UserModel user)
+        public ActionResult LoginEnter(UserModel user)
         {
-            if (user != null)
+            UserModel authorizing = db.Users
+                .Include(user => user.Blocks)
+                .Include(user => user.Grades)
+                .ThenInclude(grade => grade.Building)
+                .ThenInclude(build => build.Type)
+                .FirstOrDefault(predicate => predicate.Email == user.Email && predicate.Password == user.Password);
+
+            if (authorizing == null)
             {
-                UserModel users = db.Users.FirstOrDefault(predicate => predicate.Email == user.Email && predicate.Password == user.Password);
-                if (users != null)
-                {
-                    UpgradesModel upgrades = db.Upgrades.FirstOrDefault(predicate => predicate.UserId == users.Id);
-
-                    if (upgrades == null)
-                    {
-                        upgrades = new UpgradesModel() { MainBuilding = 0, Miner = 0, Defence = 0, UserId = users.Id, user = users };
-                        db.Upgrades.Add(upgrades);
-
-                        users.UpgradesModel = upgrades; 
-                        db.Users.Update(users);
-                        await db.SaveChangesAsync();
-                    }
-
-                    Blockchain blockchain = new Blockchain();
-                    //blockchain.AddBlock("", users.Id,db);
-
-
-                    
-                    int i = 0;
-                    foreach (BlockModel blc in Blockchain.blockchain)
-                    {
-                        System.Diagnostics.Debug.WriteLine("{0}, {1}, {2}, {3}, {4}", i, blc.Data, blc.Hash, blc.Timestamp, blc.Nonce);
-                        i++;
-                    }
-
-                    Response.Cookies.Append("id", users.Id.ToString());
-                    Response.Cookies.Append("role", users.Role.ToString());
-                    
-                    return RedirectToAction("MainView", "Main", users);
-                }
-                else
-                {
-                    ModelState.AddModelError("Error", "Неверный логин или пароль.");
-                }
+                ModelState.AddModelError("Error", "Неверный логин или пароль.");
+                return View(nameof(LoginView));
             }
 
-            return View("LoginView");
+            int i = 0;
+            foreach (BlockModel blc in Blockchain.blockchain)
+            {
+                Debug.WriteLine($"{i}, {blc.Data}, {blc.Hash}, {blc.Timestamp}, {blc.Nonce}");
+                i++;
+            }
 
+            Response.Cookies.Append("id", authorizing.Id.ToString());
+            Response.Cookies.Append("role", authorizing.Role.ToString());
 
+            
 
+            return RedirectToAction("MainView", "Main", authorizing);
         }
 
 

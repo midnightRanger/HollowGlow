@@ -16,6 +16,7 @@ namespace HollowGlow.Models
         public string Password { get; set; }
         public int Role { get; set; }
         public int Coins { get; set; }
-        public UpgradesModel UpgradesModel { get; set; }
+        public List<BlockModel> Blocks { get; set; } = new List<BlockModel>();
+        public List<BuildingGradesModel> Grades { get; set; } = new List<BuildingGradesModel>();
     }
 }

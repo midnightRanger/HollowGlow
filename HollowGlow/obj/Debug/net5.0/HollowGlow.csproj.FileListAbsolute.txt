@@ -71,8 +71,6 @@ C:\Users\Лев\source\repos\HollowGlow\HollowGlow\bin\Debug\net5.0\runtimes\win
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\bin\Debug\net5.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\Razor\Views\Home\LoginView.cshtml.g.cs
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\Razor\Views\Home\RegisterView.cshtml.g.cs
-C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\Razor\Views\Main\MainView.cshtml.g.cs
-C:\Users\Лев\source\repos\HollowGlow\HollowGlow\bin\Debug\net5.0\typescript_comp\tsconfig.json
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\Razor\Views\Main\ShopView.cshtml.g.cs
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\Razor\Views\Main\CraftView.cshtml.g.cs
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\Razor\Views\Main\MarketView.cshtml.g.cs
@@ -153,3 +151,4 @@ C:\Users\Лев\source\repos\HollowGlow\HollowGlow\bin\Debug\net5.0\runtimes\win
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\bin\Debug\net5.0\runtimes\win-arm64\lib\net5.0\dotnet-aspnet-codegenerator-design.exe
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\HollowGlow.csproj.AssemblyReference.cache
 C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\Razor\Views\Main\BlocksView.cshtml.g.cs
+C:\Users\Лев\source\repos\HollowGlow\HollowGlow\obj\Debug\net5.0\Razor\Views\Main\MainView.cshtml.g.cs

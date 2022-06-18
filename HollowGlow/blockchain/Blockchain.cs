@@ -26,34 +26,40 @@ namespace HollowGlow.blockchain
 
         public static List<BlockModel> blockchain = new List<BlockModel>();
 
-
-        public void AddBlock(string ts, int userId, ApplicationContext db, string dat = "genesis", string prvHash = "")
+        public static BlockModel GenerateGenesis()
         {
-            int nonce = 0; //Число, которое будет менять блокчейн для соответствия сложности
+            int nonce = 0; 
+            string timestamp = Convert.ToString(DateTime.Now);
+            while (true)
+            {
+                string newHash = getHash(timestamp, "genesis", "", nonce); 
+
+                if (newHash.StartsWith(string.Concat(Enumerable.Repeat("0", 1))))
+                {
+                    System.Diagnostics.Debug.WriteLine("Finded! {0}, nonce - {1}", newHash, nonce);
+                    return new BlockModel() { Timestamp = timestamp, Data = "genesis", Hash = newHash, Nonce = nonce };
+                }
+                
+                nonce++;
+            }
+        }
+
+
+        public static BlockModel CreateBlock(int? userId = null, string dat = "genesis", string prvHash = "")
+        {
+            int nonce = 0; 
             string timestamp = Convert.ToString(DateTime.Now);
             while (true)
             {
                 string newHash = getHash(timestamp, dat, prvHash, nonce); //Вычисляем хэш, дополнительно передавая число сложности
 
-                if (newHash.StartsWith(String.Concat(Enumerable.Repeat("0", 1))))
+                if (newHash.StartsWith(string.Concat(Enumerable.Repeat("0", 1))))
                 {
                     System.Diagnostics.Debug.WriteLine("Finded! {0}, nonce - {1}", newHash, nonce);
-
-                    BlockModel newBlock = new BlockModel() { Timestamp = timestamp, Data = dat, Hash = newHash, Nonce = nonce, UserId = userId };
-                    blockchain.Add(newBlock);
-                    db.BlocksModel.Add(newBlock);
-
-
-
-
-                    //blockchain.Add(new Block(timestamp, dat, newHash, nonce));
-
-                    break;
+                    return new BlockModel() { Timestamp = timestamp, Data = dat, Hash = newHash, Nonce = nonce, UserId = userId };
                 }
-                else //Иначе - считать со следующим значением nonce
-                {
-                    nonce++;
-                }
+                
+                nonce++;
             }
         }
 

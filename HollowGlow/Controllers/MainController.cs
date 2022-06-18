@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HollowGlow.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using HollowGlow.blockchain;
+using HollowGlow.ViewModels;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace HollowGlow.Controllers
 {
@@ -25,19 +26,19 @@ namespace HollowGlow.Controllers
         //GET: MainController
         public ActionResult MainView(UserModel user)
         {
-            int id = Convert.ToInt32(Request.Cookies["id"]);
+            var viewmodel = new ClickerViewModel();
+            var income = user.Grades.Select(grade => grade.Income.GetValueOrDefault()).Sum();
 
-            user = db.Users.FirstOrDefault(predicate => predicate.Id == id);
-            UpgradesModel upgrades = db.Upgrades.FirstOrDefault(predicate => predicate.UserId == user.Id);
-            user.UpgradesModel = upgrades;
-
-            return View(user);
-
+            if (income == 0) viewmodel.Income = 1; else viewmodel.Income = income;
+            viewmodel.User = user;
+            return View(viewmodel);
         }
 
         public async Task<ActionResult> BlocksView(BlockModel blockModel)
         {
-            var blockModels = await db.BlocksModel.ToListAsync<BlockModel>();
+            var blockModels = await db.Blocks
+                .Include(block => block.User)
+                .ToListAsync();
             return View(blockModels);
         }
 
@@ -46,33 +47,49 @@ namespace HollowGlow.Controllers
         {
             int id = Convert.ToInt32(Request.Cookies["id"]);
 
-            BlockModel prevblockModel = db.BlocksModel.OrderByDescending(x => x.Id).FirstOrDefault();
-            string prevHash = prevblockModel.Hash; 
+            BlockModel prevblockModel = db.Blocks.OrderByDescending(x => x.Id).FirstOrDefault();
+            string prevHash = prevblockModel.Hash;
 
-            Blockchain blockchain = new Blockchain();
-            blockchain.AddBlock("", id, db,"Simple Sword", prevHash);
-
-            db.SaveChangesAsync();
+            var block = Blockchain.CreateBlock(id, "Simple Sword", prevHash);
+            db.Blocks.Add(block);
+            await db.SaveChangesAsync();
 
             return View("CraftView");
 
         }
 
-
-        public async Task<ActionResult> ShopView(UpgradesShopModel upgradesShop)
+        [HttpGet]
+        public async Task<ActionResult> ShopView()
         {
             int id = Convert.ToInt32(Request.Cookies["id"]);
 
-            UpgradesModel upgrades;
-            upgrades = await db.Upgrades.FirstOrDefaultAsync(upgrades => upgrades.UserId == id);
+            var grades = await db.BuildingGrades
+                .Include(grade => grade.Building)
+                .ThenInclude(building => building.Type)
+                .ToListAsync();
 
-            var upgradeShop = await db.UpgradesShop.ToListAsync<UpgradesShopModel>();
+            //ViewBag.MinerLvl = 1;
+            //ViewBag.MainBuildingLvl = 1;
+            //ViewBag.DefenseLvl = 1;
 
-            ViewBag.MinerLvl = upgrades.Miner;
-            ViewBag.MainBuildingLvl = upgrades.MainBuilding;
-            ViewBag.DefenseLvl = upgrades.Defence;
+            var user = await db.Users.FirstOrDefaultAsync(user => user.Id == id);
+            List<BuildingGradesModel> ownedGradesList = user.Grades;
 
-            return View(upgradeShop);
+
+            //var ownedGrades = db.BuildingGrades.SelectMany(bg => bg.Buyers.Where(bu => bu.Id == id)).ToArray();
+
+            //var ownedGrades = db.Users.SelectMany(bg => bg.Grades.Where(bu => bu.Buyers.Where(buy => buy.Id == id))).ToArray(); 
+
+            //var ownedGrades = db.BuildingGrades.Include(c => user.Grades.Where(gr => gr.Buyers == ).ToArray();
+
+            BuildingGradesModel[] ownedGrades = user.Grades.ToArray();
+            //var upgradeShop = await db.UpgradesShop.ToListAsync<UpgradesShopModel>();
+
+            //var toBuy = await db.BuildingGrades.Select(gr => ownedGrades.Where(og => og.Id == gr.Id)).ToListAsync<BuildingGradesModel>();
+
+           
+
+            return View();
         }
 
         public async Task<ActionResult> CraftView()
@@ -81,41 +98,32 @@ namespace HollowGlow.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Mine()
+        public async Task<IActionResult> Buy(int? itemId)
         {
             int id = Convert.ToInt32(Request.Cookies["id"]);
-            int idItem = Convert.ToInt32(Request.Cookies["idItem"]);
-            var  upgradeShops = await db.UpgradesShop.ToListAsync<UpgradesShopModel>();
- 
-            UpgradesModel upgrades = await db.Upgrades.FirstOrDefaultAsync(user => user.UserId == id);
-            UserModel user = await db.Users.FirstOrDefaultAsync(user => user.Id == id);
-            UpgradesShopModel upgradeShop = await db.UpgradesShop.FirstOrDefaultAsync(predicate => predicate.Id == idItem);
+            var user = await db.Users.FirstOrDefaultAsync(user => user.Id == id);
 
-            if (upgradeShop != null)
+            var grade = await db.BuildingGrades.FirstOrDefaultAsync(grades => grades.Id == itemId);
+
+            user.Coins -= grade.Cost;
+
+
+            BuildingGradesModel gradeUser = user.Grades.FirstOrDefault(grade => grade.BuildingId == grade.BuildingId);
+
+            if (gradeUser == null)
             {
-                if (user.Coins > upgradeShop.Cost)
-                {
-                    user.Coins -= upgradeShop.Cost;
-                    upgrades.Miner = upgradeShop.Lvl;
-
-
-                    ViewBag.BoughtId = upgradeShop.Id;
-
-                    db.Upgrades.Update(upgrades);
-                    db.Users.Update(user);
-                    await db.SaveChangesAsync();
-                    ModelState.AddModelError("Error", " Ок.");
-
-                }
-
-                else { ModelState.AddModelError("Error", " Ошибка. Недостаточно средств"); ViewBag.BadId = idItem; }
-
+                user.Grades.Add(grade);
             }
-            else ModelState.AddModelError("Error", " Ошибка. Предмет не найнден");
-            return View("ShopView", upgradeShops);
+            else
+            {
+                user.Grades.Remove(gradeUser);
+                user.Grades.Add(grade);
+            }
+            db.Users.Update(user);
+            await db.SaveChangesAsync();
 
+            return View("ShopView");
         }
-
 
         [HttpPost]
         public async Task<ActionResult> LoadCoins(UserModel user)

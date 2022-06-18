@@ -19,6 +19,8 @@ namespace HollowGlow.Models
 
         public int Nonce { get; set; }
 
-        public int UserId { get; set; }
+        //null on genesis
+        public int? UserId { get; set; }
+        public UserModel User { get; set; }
     }
 }

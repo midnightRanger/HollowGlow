@@ -39,6 +39,7 @@ namespace HollowGlow
             using (var serviceScope = serviceScopeFactory.CreateScope())
             {
                 var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationContext>();
+
                 dbContext.Database.EnsureCreated();
             }
 

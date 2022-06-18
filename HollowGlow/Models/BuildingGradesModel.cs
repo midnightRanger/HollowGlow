@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace HollowGlow.Models
 {
-    public class UpgradesShopModel
+    public class BuildingGradesModel
     {
         [Key]
         public int Id { get; set; }
+        public int BuildingId { get; set; }
         public int Lvl { get; set; }
+        public int? Income { get; set; }
+        public int? Defense { get; set; }
         public int Cost { get; set; }
-        public string Type { get; set; }
-        public string Image { get; set; }
-        public string Description { get; set; }
-        public int IsBought { get; set;  }
+        public BuildingModel Building { get; set; }
+        public List<UserModel> Buyers { get; set; } = new List<UserModel>();
     }
 }

@@ -1,4 +1,4 @@
-﻿@model HollowGlow.Models.UserModel
+﻿@model HollowGlow.ViewModels.ClickerViewModel
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -6,30 +6,9 @@
 
 <script type="text/javascript">
 
-    function update_coins() {
-
-        const btn = document.getElementById("LabelCoins");
-        const txt = document.getElementById("textCoins");
-
-        var minerLvl = JSON.parse('@Html.Raw(Model.UpgradesModel.Miner)');
-        txt.innerHTML = "Your mine lvl: " + minerLvl;
-        var coins; 
-
-        if (minerLvl == 0) {
-            coins = (Number(btn.value) + 1);
-        }
-        else if (minerLvl == 1) {
-            coins = (Number(btn.value) + 5);
-        }
-        else if (minerLvl == 2) {
-            coins = (Number(btn.value) + 6);
-        }
-        else if (minerLvl == 3) {
-            coins = (Number(btn.value) + 7);
-        }
-        else if (minerLvl == 4) {
-            coins = (Number(btn.value) + 10);
-        }
+    function update_coins(income) {
+        const btn = document.getElementById("LabelCoins");      
+        var coins = (Number(btn.value) + Number(income));
         btn.value = coins;
         document.cookie = "coins=" + coins + "; path=/";
 
@@ -43,21 +22,22 @@
 <body>
     <div class="card">
         <div class="text-center">
-            <h1 class="display-4">Hello, @Model.Login! </h1>
-            <p> Now you have - @Model.Coins coins  <img src="~/images/coin.png" width="50" height="60" /></p>
+            <h1 class="display-4">Hello, @Model.User.Login! </h1>
+            <p> Now you have - @Model.User.Coins coins  <img src="~/images/coin.png" width="50" height="60" /></p>
 
             <div>
                 <p> Here you can earn gold and buy upgrades! </p>
+                <p> Income @Model.Income</p>
             </div>
 
             <label id="textCoins"></label>
 
-            <form asp-action="LoadCoins" asp-controller="main" asp-route-id="@Model.Id">
+            <form asp-action="LoadCoins" asp-controller="main" asp-route-id="@Model.User.Id">
                 <div class="form-group">
                     <button type="submit"> Load your Coins! </button>
                 </div>
                 <div>
-                    <input class="coin" OnClick="update_coins()" type="button" id="LabelCoins" value="0">
+                    <input class="coin" OnClick="update_coins(@Model.Income)" type="button" id="LabelCoins" value="0">
 
                 </div>
 
